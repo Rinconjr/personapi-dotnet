@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  subscripto-app:
+  personaapi-dotnet:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,7 +9,7 @@ services:
       - "8080:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=arq_per_db;User=sa;Password=12345;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
     depends_on:
       - db
     networks:
@@ -18,7 +18,7 @@ services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      - SA_PASSWORD=12345
+      - SA_PASSWORD=YourSecurePassword123!
       - ACCEPT_EULA=Y
     ports:
       - "1433:1433"
