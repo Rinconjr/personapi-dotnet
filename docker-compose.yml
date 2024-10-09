@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8080:80"  # Mapea el puerto 80 del contenedor al 8080 del host
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
@@ -24,7 +24,7 @@ services:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Montar el script
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Montar el script de inicialización
     networks:
       - my_network
 
