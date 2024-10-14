@@ -17,16 +17,20 @@ services:
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - SA_PASSWORD=YourSecurePassword123!
-      - ACCEPT_EULA=Y
+    container_name: db
     ports:
       - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourSecurePassword123!
     volumes:
       - mssql_data:/var/opt/mssql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Montar el script de inicialización
+      - ./init.sql:/usr/src/app/init.sql
+      - ./entrypoint.sh:/usr/src/app/entrypoint.sh
     networks:
       - my_network
+    user: root
+    entrypoint: /bin/bash -c "apt-get update && apt-get install -y mssql-tools unixodbc-dev && /usr/src/app/entrypoint.sh"
 
 networks:
   my_network:
