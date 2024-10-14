@@ -1,9 +1,9 @@
-﻿using personapi_dotnet.Models;
+﻿using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Repository
 {
     /// <summary>
-    /// Interfaz para el repositorio de Profesiones.
+    /// Interfaz para el repositorio de Profesion.
     /// </summary>
     public interface IProfesionRepository
     {
@@ -12,25 +12,25 @@ namespace personapi_dotnet.Repository
         /// </summary>
         /// <param name="id">El identificador de la profesión.</param>
         /// <returns>La profesión encontrada.</returns>
-        Task<Profesiones> GetProfesionByIdAsync(int id);
+        Task<Profesion> GetProfesionByIdAsync(int id);
 
         /// <summary>
-        /// Obtiene todas las profesiones.
+        /// Obtiene todas las Profesion.
         /// </summary>
-        /// <returns>Una colección de profesiones.</returns>
-        Task<IEnumerable<Profesiones>> GetAllProfesionesAsync();
+        /// <returns>Una colección de Profesion.</returns>
+        Task<IEnumerable<Profesion>> GetAllProfesionAsync();
 
         /// <summary>
         /// Agrega una nueva profesión.
         /// </summary>
         /// <param name="profesion">La profesión a agregar.</param>
-        Task AddProfesionAsync(Profesiones profesion);
+        Task AddProfesionAsync(Profesion profesion);
 
         /// <summary>
         /// Actualiza una profesión existente.
         /// </summary>
         /// <param name="profesion">La profesión con los datos actualizados.</param>
-        Task UpdateProfesionAsync(Profesiones profesion);
+        Task UpdateProfesionAsync(Profesion profesion);
 
         /// <summary>
         /// Elimina una profesión por su identificador.

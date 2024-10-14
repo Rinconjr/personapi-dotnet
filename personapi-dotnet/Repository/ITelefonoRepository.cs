@@ -1,4 +1,4 @@
-﻿using personapi_dotnet.Models;
+﻿using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Repository
 {

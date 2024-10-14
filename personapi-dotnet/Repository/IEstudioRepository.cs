@@ -1,13 +1,13 @@
-﻿using personapi_dotnet.Models;
+﻿using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Repository
 {
     public interface IEstudioRepository
     {
-        Task<Estudios> GetEstudioByIdAsync(int idProf);
-        Task<IEnumerable<Estudios>> GetAllEstudiosAsync();
-        Task AddEstudioAsync(Estudios estudio);
-        Task UpdateEstudioAsync(Estudios estudio);
+        Task<Estudio> GetEstudioByIdAsync(int idProf);
+        Task<IEnumerable<Estudio>> GetAllEstudioAsync();
+        Task AddEstudioAsync(Estudio estudio);
+        Task UpdateEstudioAsync(Estudio estudio);
         Task DeleteEstudioAsync(int idProf);
     }
 }

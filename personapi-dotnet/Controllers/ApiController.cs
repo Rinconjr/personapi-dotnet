@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using personapi_dotnet.Models;
+using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,14 +26,14 @@ namespace personapi_dotnet.Controllers
 
 
         [HttpGet("estudios")]
-        public async Task<ActionResult<IEnumerable<Estudios>>> GetEstudiosAsync()
+        public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosAsync()
         {
-            var estudios = await _estudioRepository.GetAllEstudiosAsync();
+            var estudios = await _estudioRepository.GetAllEstudioAsync();
             return Ok(estudios);
         }
 
         [HttpGet("estudios/{idProf}")]
-        public async Task<ActionResult<Estudios>> GetEstudioById(int idProf)
+        public async Task<ActionResult<Estudio>> GetEstudioById(int idProf)
         {
             var estudio = await _estudioRepository.GetEstudioByIdAsync(idProf);
             if (estudio == null)
@@ -44,14 +44,14 @@ namespace personapi_dotnet.Controllers
         }
 
         [HttpPost("estudios")]
-        public async Task<ActionResult<Estudios>> CreateEstudioAsync(Estudios estudio)
+        public async Task<ActionResult<Estudio>> CreateEstudioAsync(Estudio estudio)
         {
             await _estudioRepository.AddEstudioAsync(estudio);
             return CreatedAtAction(nameof(GetEstudioById), new { idProf = estudio.IdProf }, estudio);
         }
 
         [HttpPut("estudios/{idProf}")]
-        public async Task<IActionResult> UpdateEstudio(int idProf, Estudios estudio)
+        public async Task<IActionResult> UpdateEstudio(int idProf, Estudio estudio)
         {
             if (idProf != estudio.IdProf)
             {
@@ -117,14 +117,14 @@ namespace personapi_dotnet.Controllers
 
         // Profesiones Endpoints
         [HttpGet("profesiones")]
-        public async Task<ActionResult<IEnumerable<Profesiones>>> GetProfesionesAsync()
+        public async Task<ActionResult<IEnumerable<Profesion>>> GetProfesionesAsync()
         {
-            var profesiones = await _profesionRepository.GetAllProfesionesAsync();
+            var profesiones = await _profesionRepository.GetAllProfesionAsync();
             return Ok(profesiones);
         }
 
         [HttpGet("profesiones/{id}")]
-        public async Task<ActionResult<Profesiones>> GetProfesionById(int id)
+        public async Task<ActionResult<Profesion>> GetProfesionById(int id)
         {
             var profesion = await _profesionRepository.GetProfesionByIdAsync(id);
             if (profesion == null)
@@ -135,7 +135,7 @@ namespace personapi_dotnet.Controllers
         }
 
         [HttpPost("profesiones")]
-        public async Task<ActionResult<Profesiones>> CreateProfesionAsync(Profesiones profesiones)
+        public async Task<ActionResult<Profesion>> CreateProfesionAsync(Profesion profesiones)
         {
             if (!ModelState.IsValid)
             {
@@ -147,7 +147,7 @@ namespace personapi_dotnet.Controllers
         }
 
         [HttpPut("profesiones/{id}")]
-        public async Task<IActionResult> UpdateProfesion(int id, Profesiones profesiones)
+        public async Task<IActionResult> UpdateProfesion(int id, Profesion profesiones)
         {
             if (id != profesiones.Id || !ModelState.IsValid)
             {

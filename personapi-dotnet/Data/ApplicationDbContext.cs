@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Models;
+using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Data
 {
@@ -14,16 +14,16 @@ namespace personapi_dotnet.Data
         {
         }
 
-        // DbSet that represents the 'persona' table
+        // DbSet que representa la tabla 'persona'
         public virtual DbSet<Persona> Personas { get; set; }
 
-        // DbSet that represents the 'profesion' table
-        public virtual DbSet<Profesiones> Profesiones { get; set; }
+        // DbSet que representa la tabla 'profesion'
+        public virtual DbSet<Profesion> Profesiones { get; set; }
 
-        // DbSet that represents the 'estudios' table
-        public virtual DbSet<Estudios> Estudios { get; set; }
+        // DbSet que representa la tabla 'estudio'
+        public virtual DbSet<Estudio> Estudios { get; set; }
 
-        // DbSet that represents the 'telefono' table
+        // DbSet que representa la tabla 'telefono'
         public virtual DbSet<Telefono> Telefonos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -31,16 +31,15 @@ namespace personapi_dotnet.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            // Configurations for 'Estudios'
-            modelBuilder.Entity<Estudios>(entity =>
+            // Configuraciones para 'Estudio'
+            modelBuilder.Entity<Estudio>(entity =>
             {
-                entity.HasKey(e => new { e.IdProf, e.CcPer }).HasName("PK__estudios__FB3F71A6A5F98B81");
+                entity.HasKey(e => new { e.IdProf, e.CcPer }).HasName("PK_Estudios");
 
                 entity.ToTable("estudios");
 
-                entity.Property(e => e.IdProf).HasColumnName("idProf");
-                entity.Property(e => e.CcPer).HasColumnName("ccPer");
+                entity.Property(e => e.IdProf).HasColumnName("id_prof");
+                entity.Property(e => e.CcPer).HasColumnName("cc_per");
                 entity.Property(e => e.Fecha)
                     .HasColumnType("date")
                     .HasColumnName("fecha");
@@ -49,23 +48,23 @@ namespace personapi_dotnet.Data
                     .IsUnicode(false)
                     .HasColumnName("univer");
 
-                entity.HasOne(d => d.Persona)
+                entity.HasOne(d => d.CcPerNavigation)
                     .WithMany(p => p.Estudios)
                     .HasForeignKey(d => d.CcPer)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__estudios__cc_per__29572725");
+                    .HasConstraintName("FK_Estudios_Persona");
 
-                entity.HasOne(d => d.Profesion)
+                entity.HasOne(d => d.IdProfNavigation)
                     .WithMany(p => p.Estudios)
                     .HasForeignKey(d => d.IdProf)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__estudios__id_pro__2A4B4B5E");
+                    .HasConstraintName("FK_Estudios_Profesion");
             });
 
-            // Configurations for 'Persona'
+            // Configuraciones para 'Persona'
             modelBuilder.Entity<Persona>(entity =>
             {
-                entity.HasKey(e => e.Cc).HasName("PK__persona__3213666D7E28CEAB");
+                entity.HasKey(e => e.Cc).HasName("PK_Persona");
 
                 entity.ToTable("persona");
 
@@ -88,10 +87,10 @@ namespace personapi_dotnet.Data
                     .HasColumnName("nombre");
             });
 
-            // Configurations for 'Profesiones'
-            modelBuilder.Entity<Profesiones>(entity =>
+            // Configuraciones para 'Profesion'
+            modelBuilder.Entity<Profesion>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("PK__profesio__3213E83F7B9BC971");
+                entity.HasKey(e => e.Id).HasName("PK_Profesion");
 
                 entity.ToTable("profesion");
 
@@ -107,10 +106,10 @@ namespace personapi_dotnet.Data
                     .HasColumnName("nom");
             });
 
-            // Configurations for 'Telefono'
+            // Configuraciones para 'Telefono'
             modelBuilder.Entity<Telefono>(entity =>
             {
-                entity.HasKey(e => e.Num).HasName("PK__telefono__DF908D65463F6D4B");
+                entity.HasKey(e => e.Num).HasName("PK_Telefono");
 
                 entity.ToTable("telefono");
 
@@ -124,23 +123,22 @@ namespace personapi_dotnet.Data
                     .IsUnicode(false)
                     .HasColumnName("oper");
 
-                entity.HasOne(d => d.Persona)
+                entity.HasOne(d => d.DuenioNavigation)
                     .WithMany(p => p.Telefonos)
                     .HasForeignKey(d => d.Duenio)
-                    .HasConstraintName("FK__telefono__duenio__2D27B809");
+                    .HasConstraintName("FK_Telefono_Persona");
             });
 
-
+            // Datos de prueba para 'Persona' y 'Profesion'
             modelBuilder.Entity<Persona>().HasData(
-        new Persona { Cc = 1, Nombre = "Juan", Apellido = "Pérez", Genero = 'M', Edad = 30 },
-        new Persona { Cc = 2, Nombre = "María", Apellido = "García", Genero = 'F', Edad = 25 }
-    );
-
-            modelBuilder.Entity<Profesiones>().HasData(
-                new Profesiones { Id = 1, Nom = "Ingeniero", Des = "Profesional de la ingeniería" },
-                new Profesiones { Id = 2, Nom = "Doctor", Des = "Profesional de la medicina" }
+                new Persona { Cc = 1, Nombre = "Juan", Apellido = "Pérez", Genero = "M", Edad = 30 },
+                new Persona { Cc = 2, Nombre = "María", Apellido = "García", Genero = "F", Edad = 25 }
             );
 
+            modelBuilder.Entity<Profesion>().HasData(
+                new Profesion { Id = 1, Nom = "Ingeniero", Des = "Profesional de la ingeniería" },
+                new Profesion { Id = 2, Nom = "Doctor", Des = "Profesional de la medicina" }
+            );
 
             base.OnModelCreating(modelBuilder);
         }

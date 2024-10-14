@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using personapi_dotnet.Data;
-using personapi_dotnet.Models;
+using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Repository
 {
@@ -13,17 +13,17 @@ namespace personapi_dotnet.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Profesiones>> GetAllProfesionesAsync()
+        public async Task<IEnumerable<Profesion>> GetAllProfesionAsync()
         {
             return await _context.Profesiones.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Profesiones> GetProfesionByIdAsync(int id)
+        public async Task<Profesion> GetProfesionByIdAsync(int id)
         {
             return await _context.Profesiones.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task AddProfesionAsync(Profesiones profesion)
+        public async Task AddProfesionAsync(Profesion profesion)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace personapi_dotnet.Repository
             }
         }
 
-        public async Task UpdateProfesionAsync(Profesiones profesion)
+        public async Task UpdateProfesionAsync(Profesion profesion)
         {
             if (!await _context.Profesiones.AnyAsync(p => p.Id == profesion.Id))
             {

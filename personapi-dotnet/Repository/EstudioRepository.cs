@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Models;
+using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
 using personapi_dotnet.Data;
 
@@ -15,23 +15,23 @@ namespace personapi_dotnet.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Estudios>> GetAllEstudiosAsync()
+        public async Task<IEnumerable<Estudio>> GetAllEstudioAsync()
         {
             return await _context.Estudios.ToListAsync();
         }
 
-        public async Task<Estudios> GetEstudioByIdAsync(int idProf)
+        public async Task<Estudio> GetEstudioByIdAsync(int idProf)
         {
             return await _context.Estudios.FirstOrDefaultAsync(e => e.IdProf == idProf);
         }
 
-        public async Task AddEstudioAsync(Estudios estudio)
+        public async Task AddEstudioAsync(Estudio estudio)
         {
             _context.Estudios.Add(estudio);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateEstudioAsync(Estudios estudio)
+        public async Task UpdateEstudioAsync(Estudio estudio)
         {
             _context.Entry(estudio).State = EntityState.Modified;
             await _context.SaveChangesAsync();
