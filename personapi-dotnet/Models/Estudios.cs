@@ -9,6 +9,6 @@
 
         // Relaciones
         public Persona Persona { get; set; }
-        public Profesion Profesion { get; set; }
+        public Profesiones Profesion { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using personapi_dotnet.Models;
 using System.Diagnostics;
+using personapi_dotnet.Repository;
+
 
 namespace personapi_dotnet.Controllers
 {
