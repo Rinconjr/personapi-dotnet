@@ -1,0 +1,22 @@
+﻿@model personapi_dotnet.Models.Entities.Profesion
+
+<div class="container">
+    <h2 class="mt-4">Nueva Profesión</h2>
+
+    <form asp-action="Nuevo" method="post">
+        <div class="form-group">
+            <label asp-for="Nom"></label>
+            <input asp-for="Nom" class="form-control" placeholder="Ingrese el nombre de la profesión" />
+            <span asp-validation-for="Nom" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Des"></label>
+            <textarea asp-for="Des" class="form-control" placeholder="Ingrese la descripción de la profesión"></textarea>
+            <span asp-validation-for="Des" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Lista" class="btn btn-secondary">Volver</a>
+    </form>
+</div>

@@ -1,0 +1,43 @@
+﻿@model List<personapi_dotnet.Models.Entities.Profesion>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mt-4 mb-4">Lista de Profesiones</h2>
+        <a class="btn btn-success mb-3" asp-controller="Profesion" asp-action="Nuevo">
+            <i class="fas fa-plus"></i> Nueva Profesión
+        </a>
+    </div>
+
+    <!-- Tabla responsiva para mejorar visualización en dispositivos pequeños -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var profesion in Model)
+                {
+                    <tr>
+                        <td>@profesion.Id</td>
+                        <td>@profesion.Nom</td>
+                        <td>@profesion.Des ?? "Sin descripción"</td> <!-- Manejo de valores nulos con operador ?? -->
+                        <td class="text-center">
+                            <a class="btn btn-primary btn-sm" asp-controller="Profesion" asp-action="Editar" asp-route-id="@profesion.Id" aria-label="Editar Profesión">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a class="btn btn-danger btn-sm" asp-controller="Profesion" asp-action="Eliminar" asp-route-id="@profesion.Id"
+                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta profesión?');" aria-label="Eliminar Profesión">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

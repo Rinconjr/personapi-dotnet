@@ -15,7 +15,7 @@ namespace personapi_dotnet.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Estudio>> GetAllEstudioAsync()
+        public async Task<IEnumerable<Estudio>> GetAllEstudiosAsync()
         {
             return await _context.Estudios.ToListAsync();
         }
@@ -46,5 +46,7 @@ namespace personapi_dotnet.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+       
     }
 }

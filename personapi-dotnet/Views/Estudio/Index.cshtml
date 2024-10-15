@@ -1,0 +1,31 @@
+﻿@model IEnumerable<personapi_dotnet.Models.Entities.Estudio>
+
+<table>
+    <thead>
+        <tr>
+            <th>Persona</th>
+            <th>Profesión</th>
+            <th>Fecha</th>
+            <th>Universidad</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CcPerNavigation.Nombre</td>
+                <td>@item.IdProfNavigation.Nom</td>
+                <td>@item.Fecha?.ToString("yyyy-MM-dd")</td>
+                <td>@item.Univer</td>
+                <td>
+                    <a asp-action="Edit" asp-route-idProf="@item.IdProf">Editar</a> |
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="idProf" value="@item.IdProf" />
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

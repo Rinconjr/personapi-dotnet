@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using personapi_dotnet.Data;
 using personapi_dotnet.Models.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace personapi_dotnet.Repository
 {
@@ -13,14 +15,17 @@ namespace personapi_dotnet.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Profesion>> GetAllProfesionAsync()
+        public async Task<IEnumerable<Profesion>> GetAllProfesionesAsync()
         {
             return await _context.Profesiones.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Profesion> GetProfesionByIdAsync(int id)
+        public async Task<Profesion> GetProfesionesByIdAsync(int id)
         {
-            return await _context.Profesiones.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Profesiones
+                .Include(p => p.Estudios)  // Incluimos los estudios asociados
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AddProfesionAsync(Profesion profesion)
@@ -60,5 +65,14 @@ namespace personapi_dotnet.Repository
                 throw new KeyNotFoundException("La profesión no existe");
             }
         }
+
+        public async Task<Profesion> GetProfesionByIdAsync(int id)
+        {
+            return await _context.Profesiones
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        
     }
 }

@@ -28,7 +28,7 @@ namespace personapi_dotnet.Controllers
         [HttpGet("estudios")]
         public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosAsync()
         {
-            var estudios = await _estudioRepository.GetAllEstudioAsync();
+            var estudios = await _estudioRepository.GetAllEstudiosAsync();
             return Ok(estudios);
         }
 
@@ -119,7 +119,7 @@ namespace personapi_dotnet.Controllers
         [HttpGet("profesiones")]
         public async Task<ActionResult<IEnumerable<Profesion>>> GetProfesionesAsync()
         {
-            var profesiones = await _profesionRepository.GetAllProfesionAsync();
+            var profesiones = await _profesionRepository.GetAllProfesionesAsync();
             return Ok(profesiones);
         }
 
@@ -135,26 +135,21 @@ namespace personapi_dotnet.Controllers
         }
 
         [HttpPost("profesiones")]
-        public async Task<ActionResult<Profesion>> CreateProfesionAsync(Profesion profesiones)
+        public async Task<ActionResult<Profesion>> CreateProfesionAsync(Profesion profesion)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _profesionRepository.AddProfesionAsync(profesiones);
-            return CreatedAtAction(nameof(GetProfesionById), new { id = profesiones.Id }, profesiones);
+            await _profesionRepository.AddProfesionAsync(profesion);
+            return CreatedAtAction(nameof(GetProfesionById), new { id = profesion.Id }, profesion);
         }
 
         [HttpPut("profesiones/{id}")]
-        public async Task<IActionResult> UpdateProfesion(int id, Profesion profesiones)
+        public async Task<IActionResult> UpdateProfesion(int id, Profesion profesion)
         {
-            if (id != profesiones.Id || !ModelState.IsValid)
+            if (id != profesion.Id)
             {
-                return BadRequest(ModelState);
+                return BadRequest();
             }
 
-            await _profesionRepository.UpdateProfesionAsync(profesiones);
+            await _profesionRepository.UpdateProfesionAsync(profesion);
             return NoContent();
         }
 
@@ -171,8 +166,29 @@ namespace personapi_dotnet.Controllers
             return NoContent();
         }
 
-        // Telefonos Endpoints
-        [HttpGet("telefonos")]
+        // Obtener Estudios por Profesión
+        [HttpGet("profesiones/{idProf}/estudios")]
+        public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosByProfesion(int idProf)
+        {
+            var profesion = await _profesionRepository.GetProfesionByIdAsync(idProf);
+
+            if (profesion == null)
+            {
+                return NotFound("No se encontró la profesión.");
+            }
+
+            if (profesion.Estudios == null || profesion.Estudios.Count == 0)
+            {
+                return NotFound("No se encontraron estudios para esta profesión.");
+            }
+
+            return Ok(profesion.Estudios);
+        }
+    
+
+
+    // Telefonos Endpoints
+    [HttpGet("telefonos")]
         public async Task<ActionResult<IEnumerable<Telefono>>> GetTelefonosAsync()
         {
             var telefonos = await _telefonoRepository.GetAllTelefonosAsync();
