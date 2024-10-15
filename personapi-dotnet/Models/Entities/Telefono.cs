@@ -5,7 +5,7 @@ namespace personapi_dotnet.Models.Entities;
 
 public partial class Telefono
 {
-    public string Num { get; set; } = null!;
+    public String Num { get; set; } = null!;
 
     public string Oper { get; set; } = null!;
 

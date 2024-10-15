@@ -1,0 +1,39 @@
+﻿@model IEnumerable<personapi_dotnet.Models.Entities.Persona>
+
+@{
+    ViewData["Title"] = "Personas";
+}
+
+<h1>Lista de Personas</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary mb-3">Crear Nueva Persona</a>
+</p>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+            <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+            <th>@Html.DisplayNameFor(model => model.Genero)</th>
+            <th>@Html.DisplayNameFor(model => model.Edad)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                <td>@Html.DisplayFor(modelItem => item.Genero)</td>
+                <td>@Html.DisplayFor(modelItem => item.Edad)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Cc" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Details" asp-route-id="@item.Cc" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-action="Delete" asp-route-id="@item.Cc" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

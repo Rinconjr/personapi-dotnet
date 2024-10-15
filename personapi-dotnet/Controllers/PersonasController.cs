@@ -1,62 +1,180 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using personapi_dotnet.Models.Entities;
-//using System.Collections.Generic;
-//using personapi_dotnet.Repository;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using personapi_dotnet.Models.Entities;
+using personapi_dotnet.Repository;
 
-//namespace personapi_dotnet.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class PersonasController : ControllerBase
-//    {
-//        private readonly IPersonaRepository _personaRepository;
+namespace personapi_dotnet.Controllers
+{
+    public class PersonasController : Controller
+    {
+        private readonly IPersonaRepository _personaRepository;
+        private readonly ITelefonoRepository _telefonoRepository;
+        private readonly IEstudioRepository _estudioRepository;
 
-//        public PersonasController(IPersonaRepository personaRepository)
-//        {
-//            _personaRepository = personaRepository;
-//        }
+        public PersonasController(IPersonaRepository personaRepository, ITelefonoRepository telefonoRepository, IEstudioRepository estudioRepository)
+        {
+            _personaRepository = personaRepository;
+            _telefonoRepository = telefonoRepository;
+            _estudioRepository = estudioRepository;
+        }
 
-//        // GET: api/personas
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<Persona>>> GetAll()
-//        {
-//            var personas = await _personaRepository.GetAllPersonasAsync();
-//            return Ok(personas);
-//        }
+        // GET: Personas
+        public async Task<IActionResult> Index()
+        {
+            var personas = await _personaRepository.GetAllPersonasAsync();
+            return View(personas);
+        }
 
-//        // GET: api/personas/{id}
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<Persona>> GetById(int id)
-//        {
-//            var persona = await _personaRepository.GetPersonaByIdAsync(id);
-//            if (persona == null) return NotFound();
-//            return Ok(persona);
-//        }
+        // GET: Personas/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
 
-//        // POST: api/personas
-//        [HttpPost]
-//        public async Task<ActionResult> Create(Persona persona)
-//        {
-//            await _personaRepository.AddPersonaAsync(persona);
-//            return CreatedAtAction(nameof(GetById), new { id = persona.Cc }, persona);
-//        }
+            var persona = await _personaRepository.GetPersonaByIdAsync(id.Value);
+            if (persona == null)
+            {
+                return NotFound();
+            }
 
-//        // PUT: api/personas/{id}
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> Update(int id, Persona persona)
-//        {
-//            if (id != persona.Cc) return BadRequest();
-//            await _personaRepository.UpdatePersonaAsync(persona);
-//            return NoContent();
-//        }
+            return View(persona);
+        }
 
-//        // DELETE: api/personas/{id}
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> Delete(int id)
-//        {
-//            await _personaRepository.DeletePersonaAsync(id);
-//            return NoContent();
-//        }
-//    }
-//}
+        // GET: Personas/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Personas/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Cc,Nombre,Apellido,Genero,Edad")] Persona persona)
+        {
+            var ccExiste = await _personaRepository.GetPersonaByIdAsync(persona.Cc) != null;
+
+            if (ccExiste)
+            {
+                ModelState.AddModelError("Cc", "La persona con esa cédula ya existe.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _personaRepository.AddPersonaAsync(persona);
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(persona);
+        }
+
+        // GET: Personas/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+
+            var persona = await _personaRepository.GetPersonaByIdAsync(id.Value);
+            if (persona == null)
+            {
+                return NotFound();
+            }
+
+            return View(persona);
+        }
+
+        // POST: Personas/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Cc,Nombre,Apellido,Genero,Edad")] Persona persona)
+        {
+            if (id != persona.Cc)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _personaRepository.UpdatePersonaAsync(persona);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await PersonaExists(persona.Cc))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(persona);
+        }
+
+        // GET: Personas/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+
+            var persona = await _personaRepository.GetPersonaByIdAsync(id.Value);
+            if (persona == null)
+            {
+                return NotFound();
+            }
+
+            return View(persona);
+        }
+
+        // POST: Personas/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var persona = await _personaRepository.GetPersonaByIdAsync(id);
+            if (persona == null)
+            {
+                return NotFound();
+            }
+
+            // Eliminar todos los teléfonos asociados a la persona
+            var telefonos = await _telefonoRepository.GetAllTelefonosAsync();
+            foreach (var telefono in telefonos.Where(t => t.Duenio == id))
+            {
+                await _telefonoRepository.DeleteTelefonoAsync(telefono.Num);
+            }
+
+            // Eliminar todos los estudios asociados a la persona
+            var estudios = await _estudioRepository.GetAllEstudiosAsync();
+            foreach (var estudio in estudios.Where(e => e.CcPer == id))
+            {
+                await _estudioRepository.DeleteEstudioAsync(estudio.IdProf);
+            }
+
+            // Eliminar la persona
+            await _personaRepository.DeletePersonaAsync(id);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<bool> PersonaExists(int id)
+        {
+            var persona = await _personaRepository.GetPersonaByIdAsync(id);
+            return persona != null;
+        }
+    }
+}

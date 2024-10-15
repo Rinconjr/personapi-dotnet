@@ -2,7 +2,6 @@
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace personapi_dotnet.Controllers
@@ -24,7 +23,7 @@ namespace personapi_dotnet.Controllers
             _telefonoRepository = telefonoRepository;
         }
 
-
+        // Estudios Endpoints
         [HttpGet("estudios")]
         public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosAsync()
         {
@@ -38,14 +37,26 @@ namespace personapi_dotnet.Controllers
             var estudio = await _estudioRepository.GetEstudioByIdAsync(idProf);
             if (estudio == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró un estudio con IdProf: {idProf}");
             }
-            return estudio;
+            return Ok(estudio);
         }
 
         [HttpPost("estudios")]
         public async Task<ActionResult<Estudio>> CreateEstudioAsync(Estudio estudio)
         {
+            if (estudio == null)
+            {
+                return BadRequest("La información del estudio no puede ser nula.");
+            }
+
+            // Validación adicional si es necesario verificar duplicados
+            var existingEstudio = await _estudioRepository.GetEstudioByIdAsync(estudio.IdProf);
+            if (existingEstudio != null)
+            {
+                return Conflict("El estudio ya existe.");
+            }
+
             await _estudioRepository.AddEstudioAsync(estudio);
             return CreatedAtAction(nameof(GetEstudioById), new { idProf = estudio.IdProf }, estudio);
         }
@@ -55,11 +66,16 @@ namespace personapi_dotnet.Controllers
         {
             if (idProf != estudio.IdProf)
             {
-                return BadRequest();
+                return BadRequest("El ID de la ruta no coincide con el ID del estudio.");
+            }
+
+            var existingEstudio = await _estudioRepository.GetEstudioByIdAsync(idProf);
+            if (existingEstudio == null)
+            {
+                return NotFound($"No se encontró un estudio con IdProf: {idProf}");
             }
 
             await _estudioRepository.UpdateEstudioAsync(estudio);
-
             return NoContent();
         }
 
@@ -69,11 +85,10 @@ namespace personapi_dotnet.Controllers
             var estudioToDelete = await _estudioRepository.GetEstudioByIdAsync(idProf);
             if (estudioToDelete == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró un estudio con IdProf: {idProf}");
             }
 
             await _estudioRepository.DeleteEstudioAsync(idProf);
-
             return NoContent();
         }
 
@@ -89,13 +104,18 @@ namespace personapi_dotnet.Controllers
         public async Task<ActionResult<Persona>> GetPersonaById(int id)
         {
             var persona = await _personaRepository.GetPersonaByIdAsync(id);
-            if (persona == null) return NotFound();
+            if (persona == null) return NotFound($"No se encontró una persona con Id: {id}");
             return Ok(persona);
         }
 
         [HttpPost("personas")]
         public async Task<ActionResult> CreatePersona(Persona persona)
         {
+            if (persona == null)
+            {
+                return BadRequest("La información de la persona no puede ser nula.");
+            }
+
             await _personaRepository.AddPersonaAsync(persona);
             return CreatedAtAction(nameof(GetPersonaById), new { id = persona.Cc }, persona);
         }
@@ -103,7 +123,14 @@ namespace personapi_dotnet.Controllers
         [HttpPut("personas/{id}")]
         public async Task<IActionResult> UpdatePersona(int id, Persona persona)
         {
-            if (id != persona.Cc) return BadRequest();
+            if (id != persona.Cc) return BadRequest("El ID de la ruta no coincide con el ID de la persona.");
+
+            var existingPersona = await _personaRepository.GetPersonaByIdAsync(id);
+            if (existingPersona == null)
+            {
+                return NotFound($"No se encontró una persona con Id: {id}");
+            }
+
             await _personaRepository.UpdatePersonaAsync(persona);
             return NoContent();
         }
@@ -111,6 +138,12 @@ namespace personapi_dotnet.Controllers
         [HttpDelete("personas/{id}")]
         public async Task<IActionResult> DeletePersona(int id)
         {
+            var existingPersona = await _personaRepository.GetPersonaByIdAsync(id);
+            if (existingPersona == null)
+            {
+                return NotFound($"No se encontró una persona con Id: {id}");
+            }
+
             await _personaRepository.DeletePersonaAsync(id);
             return NoContent();
         }
@@ -129,7 +162,7 @@ namespace personapi_dotnet.Controllers
             var profesion = await _profesionRepository.GetProfesionByIdAsync(id);
             if (profesion == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró una profesión con Id: {id}");
             }
             return Ok(profesion);
         }
@@ -137,6 +170,11 @@ namespace personapi_dotnet.Controllers
         [HttpPost("profesiones")]
         public async Task<ActionResult<Profesion>> CreateProfesionAsync(Profesion profesion)
         {
+            if (profesion == null)
+            {
+                return BadRequest("La información de la profesión no puede ser nula.");
+            }
+
             await _profesionRepository.AddProfesionAsync(profesion);
             return CreatedAtAction(nameof(GetProfesionById), new { id = profesion.Id }, profesion);
         }
@@ -146,7 +184,13 @@ namespace personapi_dotnet.Controllers
         {
             if (id != profesion.Id)
             {
-                return BadRequest();
+                return BadRequest("El ID de la ruta no coincide con el ID de la profesión.");
+            }
+
+            var existingProfesion = await _profesionRepository.GetProfesionByIdAsync(id);
+            if (existingProfesion == null)
+            {
+                return NotFound($"No se encontró una profesión con Id: {id}");
             }
 
             await _profesionRepository.UpdateProfesionAsync(profesion);
@@ -156,87 +200,75 @@ namespace personapi_dotnet.Controllers
         [HttpDelete("profesiones/{id}")]
         public async Task<IActionResult> DeleteProfesion(int id)
         {
-            var profesionToDelete = await _profesionRepository.GetProfesionByIdAsync(id);
-            if (profesionToDelete == null)
+            var existingProfesion = await _profesionRepository.GetProfesionByIdAsync(id);
+            if (existingProfesion == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró una profesión con Id: {id}");
             }
 
             await _profesionRepository.DeleteProfesionAsync(id);
             return NoContent();
         }
 
-        // Obtener Estudios por Profesión
-        [HttpGet("profesiones/{idProf}/estudios")]
-        public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosByProfesion(int idProf)
-        {
-            var profesion = await _profesionRepository.GetProfesionByIdAsync(idProf);
-
-            if (profesion == null)
-            {
-                return NotFound("No se encontró la profesión.");
-            }
-
-            if (profesion.Estudios == null || profesion.Estudios.Count == 0)
-            {
-                return NotFound("No se encontraron estudios para esta profesión.");
-            }
-
-            return Ok(profesion.Estudios);
-        }
-    
-
-
-    // Telefonos Endpoints
-    [HttpGet("telefonos")]
+        // Teléfonos Endpoints
+        [HttpGet("telefonos")]
         public async Task<ActionResult<IEnumerable<Telefono>>> GetTelefonosAsync()
         {
             var telefonos = await _telefonoRepository.GetAllTelefonosAsync();
             return Ok(telefonos);
         }
 
-        [HttpGet("telefonos/{duenio}")]
-        public async Task<ActionResult<Telefono>> GetTelefonoByDuenio(int duenio)
+        [HttpGet("telefonos/{num}")]
+        public async Task<ActionResult<Telefono>> GetTelefonoByNum(string num)
         {
-            var telefono = await _telefonoRepository.GetTelefonoByIdAsync(duenio);
+            var telefono = await _telefonoRepository.GetTelefonoByIdAsync(num);
             if (telefono == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró un teléfono con el número: {num}");
             }
-            return telefono;
+            return Ok(telefono);
         }
 
         [HttpPost("telefonos")]
         public async Task<ActionResult<Telefono>> CreateTelefonoAsync(Telefono telefono)
         {
+            if (telefono == null)
+            {
+                return BadRequest("La información del teléfono no puede ser nula.");
+            }
+
             await _telefonoRepository.AddTelefonoAsync(telefono);
-            return CreatedAtAction(nameof(GetTelefonoByDuenio), new { duenio = telefono.Duenio }, telefono);
+            return CreatedAtAction(nameof(GetTelefonoByNum), new { num = telefono.Num }, telefono);
         }
 
-        [HttpPut("telefonos/{duenio}")]
-        public async Task<IActionResult> UpdateTelefono(int duenio, Telefono telefono)
+        [HttpPut("telefonos/{num}")]
+        public async Task<IActionResult> UpdateTelefono(string num, Telefono telefono)
         {
-            if (duenio != telefono.Duenio)
+            if (num != telefono.Num)
             {
-                return BadRequest();
+                return BadRequest("El número de la ruta no coincide con el número del teléfono.");
+            }
+
+            var existingTelefono = await _telefonoRepository.GetTelefonoByIdAsync(num);
+            if (existingTelefono == null)
+            {
+                return NotFound($"No se encontró un teléfono con el número: {num}");
             }
 
             await _telefonoRepository.UpdateTelefonoAsync(telefono);
-
             return NoContent();
         }
 
-        [HttpDelete("telefonos/{duenio}")]
-        public async Task<IActionResult> DeleteTelefono(int duenio)
+        [HttpDelete("telefonos/{num}")]
+        public async Task<IActionResult> DeleteTelefono(string num)
         {
-            var telefonoToDelete = await _telefonoRepository.GetTelefonoByIdAsync(duenio);
-            if (telefonoToDelete == null)
+            var existingTelefono = await _telefonoRepository.GetTelefonoByIdAsync(num);
+            if (existingTelefono == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró un teléfono con el número: {num}");
             }
 
-            await _telefonoRepository.DeleteTelefonoAsync(duenio);
-
+            await _telefonoRepository.DeleteTelefonoAsync(num);
             return NoContent();
         }
     }

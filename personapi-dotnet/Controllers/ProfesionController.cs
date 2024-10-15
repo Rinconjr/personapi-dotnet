@@ -1,73 +1,171 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using personapi_dotnet.Models;
-//using personapi_dotnet.Repository;
+using Microsoft.AspNetCore.Mvc;
+using personapi_dotnet.Models.Entities;
+using personapi_dotnet.Repository;
+using personapi_dotnet.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
-//namespace personapi_dotnet.Controllers
-//{
-//    [Route("api/[controller]s")] // Pluralize the controller route
-//    [ApiController]
-//    public class ProfesionController : ControllerBase
-//    {
-//        private readonly IProfesionRepository _profesionRepository;
+namespace personapi_dotnet.Controllers
+{
+    public class ProfesionController : Controller
+    {
+        private readonly ApplicationDbContext _context;
 
-//        public ProfesionController(IProfesionRepository profesionRepository)
-//        {
-//            _profesionRepository = profesionRepository;
-//        }
+        public ProfesionController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<Profesiones>>> GetProfesionesAsync()
-//        {
-//            var profesiones = await _profesionRepository.GetAllProfesionesAsync();
-//            return Ok(profesiones);
-//        }
+        // GET: Profesion
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Profesiones.ToListAsync());
+        }
 
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<Profesiones>> GetProfesionById(int id)
-//        {
-//            var profesion = await _profesionRepository.GetProfesionByIdAsync(id);
-//            if (profesion == null)
-//            {
-//                return NotFound();
-//            }
-//            return Ok(profesion);
-//        }
+        // GET: Profesion/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-//        [HttpPost]
-//        public async Task<ActionResult<Profesiones>> CreateProfesionAsync([FromBody] Profesiones profesiones) // Fixed parameter naming
-//        {
-//            if (!ModelState.IsValid)
-//            {
-//                return BadRequest(ModelState);
-//            }
+            var profesion = await _context.Profesiones
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (profesion == null)
+            {
+                return NotFound();
+            }
 
-//            await _profesionRepository.AddProfesionAsync(profesiones);
-//            return CreatedAtAction(nameof(GetProfesionById), new { id = profesiones.Id }, profesiones);
-//        }
+            return View(profesion);
+        }
 
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> UpdateProfesion(int id, [FromBody] Profesiones profesiones) // Fixed parameter naming
-//        {
-//            if (id != profesiones.Id || !ModelState.IsValid)
-//            {
-//                return BadRequest(ModelState);
-//            }
+        // GET: Profesion/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
 
-//            await _profesionRepository.UpdateProfesionAsync(profesiones);
-//            return NoContent();
-//        }
+        // POST: Profesion/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Nom,Des")] Profesion profesion)
+        {
+            bool profesionExiste = await _context.Profesiones
+                .AnyAsync(t => t.Id == profesion.Id);
 
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> DeleteProfesion(int id)
-//        {
-//            var profesionToDelete = await _profesionRepository.GetProfesionByIdAsync(id);
-//            if (profesionToDelete == null)
-//            {
-//                return NotFound();
-//            }
+            if (profesionExiste)
+            {
+                ModelState.AddModelError("Id", "El id de profesión ya existe.");
+            }
+            else
+            {
+                if (ModelState.IsValid)
+                {
+                    _context.Add(profesion);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
-//            await _profesionRepository.DeleteProfesionAsync(id);
-//            return NoContent();
-//        }
-//    }
-//}
+            return View(profesion);
+        }
+
+        // GET: Profesion/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var profesion = await _context.Profesiones.FindAsync(id);
+            if (profesion == null)
+            {
+                return NotFound();
+            }
+            return View(profesion);
+        }
+
+        // POST: Profesion/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nom,Des")] Profesion profesion)
+        {
+            if (id != profesion.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(profesion);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProfesionExists(profesion.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(profesion);
+        }
+
+        // GET: Profesion/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var profesion = await _context.Profesiones
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (profesion == null)
+            {
+                return NotFound();
+            }
+
+            return View(profesion);
+        }
+
+        // POST: Profesion/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var profesion = await _context.Profesiones.FindAsync(id);
+            if (profesion != null)
+            {
+                var estudiosAsociados = await _context.Estudios
+                    .Where(e => e.IdProf == id)
+                    .ToListAsync();
+
+                if (estudiosAsociados.Any())
+                {
+                    _context.Estudios.RemoveRange(estudiosAsociados);
+                }
+
+                _context.Profesiones.Remove(profesion);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool ProfesionExists(int id)
+        {
+            return _context.Profesiones.Any(e => e.Id == id);
+        }
+    }
+}

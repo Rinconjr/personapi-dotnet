@@ -1,22 +1,52 @@
+/* site.css */
+
+/* Ajustes de estilo global */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #f8f9fa;
 }
+
+/* Estilo para los botones */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Estilo personalizado para el encabezado */
+h1 {
+    color: #007bff;
+}
+
+/* Estilo para el pie de página */
+.custom-footer {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Estilo para botones personalizados */
+.btn-custom {
+    background-color: #258cfb;
+    color: white;
+    border: none;
+}
+
+    .btn-custom:hover {
+        background-color: #1a6fb3;
+    }
