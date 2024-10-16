@@ -1,5 +1,3 @@
-/* site.css */
-
 /* Ajustes de estilo global */
 html {
     font-size: 14px;
@@ -16,6 +14,7 @@ html {
 body {
     margin-bottom: 60px;
     background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Estilo para los botones */
@@ -30,15 +29,88 @@ body {
 /* Estilo personalizado para el encabezado */
 h1 {
     color: #007bff;
+    font-size: 3.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Hero section */
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    max-width: 600px;
+    color: #333; /* Mejora del contraste para mayor legibilidad */
+}
+
+/* Botón de llamada a la acción */
+.hero a.btn {
+    background-color: #ff6f61;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 50px; /* Más espaciado bajo el botón */
+}
+
+    .hero a.btn:hover {
+        background-color: #ff5a4d;
+    }
+
+/* Imagen animada */
+.image-container {
+    margin: 50px auto;
+    padding: 20px;
+    display: inline-block;
+}
+
+.animated-image {
+    width: 100%;
+    max-width: 600px;
+    border: 5px solid #007bff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s ease, opacity 1s ease;
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+    .animated-image:hover {
+        transform: scale(1.05);
+    }
+
+/* Animación de fade-in */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 /* Estilo para el pie de página */
-.custom-footer {
-    background-color: #343a40;
-    color: #ffffff;
-    padding: 20px;
+footer {
+    background-color: #444; /* Mejor contraste para el pie de página */
+    color: white;
     text-align: center;
+    padding: 20px 0;
+    margin-top: 50px; /* Espacio extra para separar el pie de página de la imagen */
 }
+
+    footer p {
+        margin: 0;
+        color: #ccc; /* Color más claro para el texto del pie */
+    }
 
 /* Estilo para botones personalizados */
 .btn-custom {
@@ -49,4 +121,27 @@ h1 {
 
     .btn-custom:hover {
         background-color: #1a6fb3;
+    }
+
+/* Ajuste de los textos principales */
+h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: #007bff;
+}
+
+p {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* Navbar Brand */
+.container-fluid .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+    .container-fluid .navbar-brand:hover {
+        color: #0056b3;
     }
