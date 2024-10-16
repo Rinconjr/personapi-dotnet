@@ -1,15 +1,15 @@
 version: '3.8'
 
 services:
-  dotnet:
+  personaapi-dotnet:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5062:5062"
+      - "8080:80"  # Mapea el puerto 80 del contenedor al 8080 del host
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=arq_per_db;User=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
     depends_on:
       - db
     networks:
@@ -38,4 +38,3 @@ networks:
 
 volumes:
   mssql_data:
-    driver: local
