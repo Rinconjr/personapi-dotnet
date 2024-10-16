@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=build-env /app/personapi-dotnet/out .
 
 # Expone el puerto en el que la aplicación correrá
-EXPOSE 80
+EXPOSE 5062
 
 # Define el comando que se ejecutará cuando el contenedor inicie
 ENTRYPOINT ["dotnet", "personapi-dotnet.dll"]
