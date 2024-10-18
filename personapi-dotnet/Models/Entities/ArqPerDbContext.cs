@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-
-namespace personapi_dotnet.Models.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using personapi_dotnet.Models.Entities;
 
 public partial class ArqPerDbContext : DbContext
 {
@@ -16,16 +13,20 @@ public partial class ArqPerDbContext : DbContext
     }
 
     public virtual DbSet<Estudio> Estudios { get; set; }
-
     public virtual DbSet<Persona> Personas { get; set; }
-
     public virtual DbSet<Profesion> Profesions { get; set; }
-
     public virtual DbSet<Telefono> Telefonos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db,1433;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder
+                .UseSqlServer("Server=db,1433;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;")
+                .LogTo(Console.WriteLine, LogLevel.Information)  // Habilitar logging de EF Core
+                .EnableSensitiveDataLogging();  // Mostrar datos sensibles en los logs
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,12 +46,12 @@ public partial class ArqPerDbContext : DbContext
 
             entity.HasOne(d => d.CcPerNavigation).WithMany(p => p.Estudios)
                 .HasForeignKey(d => d.CcPer)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Cambiado a cascada
                 .HasConstraintName("FK__estudios__cc_per__5EBF139D");
 
             entity.HasOne(d => d.IdProfNavigation).WithMany(p => p.Estudios)
                 .HasForeignKey(d => d.IdProf)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Cambiado a cascada
                 .HasConstraintName("FK__estudios__id_pro__5FB337D6");
         });
 
@@ -61,7 +62,7 @@ public partial class ArqPerDbContext : DbContext
             entity.ToTable("persona");
 
             entity.Property(e => e.Cc)
-                .ValueGeneratedNever()
+                .ValueGeneratedNever()  // El cc no se genera automáticamente
                 .HasColumnName("cc");
             entity.Property(e => e.Apellido)
                 .HasMaxLength(45)
@@ -81,12 +82,12 @@ public partial class ArqPerDbContext : DbContext
 
         modelBuilder.Entity<Profesion>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__profesio__3213E83F74FC0B45");
+            entity.HasKey(e => e.Id).HasName("PK__profesion__3213E83F74FC0B45");
 
             entity.ToTable("profesion");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()  // Generación automática de ID
                 .HasColumnName("id");
             entity.Property(e => e.Des)
                 .HasColumnType("text")
@@ -115,7 +116,7 @@ public partial class ArqPerDbContext : DbContext
 
             entity.HasOne(d => d.DuenioNavigation).WithMany(p => p.Telefonos)
                 .HasForeignKey(d => d.Duenio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Cambiado a cascada
                 .HasConstraintName("FK__telefono__duenio__628FA481");
         });
 

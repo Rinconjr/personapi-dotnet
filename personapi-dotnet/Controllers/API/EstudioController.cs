@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -39,22 +40,47 @@ namespace personapi_dotnet.Controllers
             return Ok(estudio);
         }
 
+        
         [HttpPost]
         public async Task<ActionResult> AddEstudio(int profesion, int cedula, DateOnly date, string universidad)
         {
+            // Verificar si la persona ya existe
+            var persona = await _personaRepository.GetPersonaByIdAsync(cedula);
+            if (persona == null)
+            {
+                return NotFound($"La persona con cédula {cedula} no existe.");
+            }
+
+            // Verificar si la profesión ya existe
+            var profesionExistente = await _profesionRepository.GetProfesionByIdAsync(profesion);
+            if (profesionExistente == null)
+            {
+                return NotFound($"La profesión con ID {profesion} no existe.");
+            }
+
+            // Crear el nuevo estudio y asociar las entidades existentes
             var newEstudio = new Estudio
             {
-                IdProf = profesion,
-                CcPer = cedula,
+                IdProf = profesionExistente.Id,  // Usar la profesión existente
+                CcPer = persona.Cc,              // Usar la persona existente
                 Fecha = date,
                 Univer = universidad,
-                CcPerNavigation = await _personaRepository.GetPersonaByIdAsync(cedula),
-                IdProfNavigation = await _profesionRepository.GetProfesionByIdAsync(profesion)
+                CcPerNavigation = persona,
+                IdProfNavigation = profesionExistente
             };
 
-            await _estudiosRepository.AddEstudioAsync(newEstudio);
-            return CreatedAtAction(nameof(GetEstudioById), new { ccPer = newEstudio.CcPer, idProf = newEstudio.IdProf }, newEstudio);
+            // Añadir el nuevo estudio sin modificar las entidades relacionadas
+            try
+            {
+                await _estudiosRepository.AddEstudioAsync(newEstudio);
+                return CreatedAtAction(nameof(GetEstudioById), new { ccPer = newEstudio.CcPer, idProf = newEstudio.IdProf }, newEstudio);
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"Error al agregar el estudio: {ex.Message}");
+            }
         }
+
 
         [HttpPut("{ccPer}/{idProf}")]
         public async Task<ActionResult> UpdateEstudio(int ccPer, int idProf, [FromBody] Estudio estudio)
