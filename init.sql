@@ -45,7 +45,7 @@ END
 GO
 
 CREATE TABLE profesion (
-    id INT NOT NULL,
+    id INT IDENTITY(1,1) NOT NULL,  -- Generación automática de ID
     nom VARCHAR(90) NOT NULL,
     des TEXT NULL,
     PRIMARY KEY (id)
@@ -65,8 +65,8 @@ CREATE TABLE estudios (
     fecha DATE NULL,
     univer VARCHAR(50) NULL,
     PRIMARY KEY (id_prof, cc_per),
-    FOREIGN KEY (cc_per) REFERENCES persona(cc),
-    FOREIGN KEY (id_prof) REFERENCES profesion(id)
+    FOREIGN KEY (cc_per) REFERENCES persona(cc) ON DELETE CASCADE, -- Elimina registros relacionados
+    FOREIGN KEY (id_prof) REFERENCES profesion(id) ON DELETE CASCADE -- Elimina registros relacionados
 );
 GO
 
@@ -82,6 +82,6 @@ CREATE TABLE telefono (
     oper VARCHAR(45) NOT NULL,
     duenio INT NOT NULL,
     PRIMARY KEY (num),
-    FOREIGN KEY (duenio) REFERENCES persona(cc)
+    FOREIGN KEY (duenio) REFERENCES persona(cc) ON DELETE CASCADE -- Elimina registros relacionados
 );
 GO
