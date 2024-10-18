@@ -6,25 +6,24 @@ using personapi_dotnet.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar servicios
-builder.Services.AddControllersWithViews();
-builder.Services.AddControllers()
+// Configurar servicios con vistas y JSON
+builder.Services.AddControllersWithViews()
     .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
     });
 
+// Registrar repositorios e interfaces
 builder.Services.AddTransient<IPersonaRepository, PersonaRepository>();
 builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
 builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
 builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
 
-// Configurar DbContext
+// Configurar DbContext con la cadena de conexión
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Agregar Swagger
-builder.Services.AddEndpointsApiExplorer();
+// Configurar Swagger
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Persona API", Version = "v1" });
@@ -32,32 +31,39 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configurar el middleware
+// Configurar el middleware para manejo de errores y HSTS en producción
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-// Habilitar Swagger
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+// Habilitar Swagger solo en desarrollo
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Persona API V1");
-    c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Persona API V1");
+        c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+    });
+}
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+// Comentado para evitar problemas de redirección en Docker (solo usar HTTP en Docker)
+// app.UseHttpsRedirection();
 
-app.UseRouting();
-app.UseAuthorization();
+app.UseStaticFiles();  // Sirve archivos estáticos como CSS, JS, imágenes, etc.
 
-// Configurar CORS si es necesario
-// app.UseCors("AllowAllOrigins");
+app.UseRouting();      // Habilita el enrutamiento
+
+app.UseAuthorization();  // Habilita la autorización
+
+// Mapea las rutas a los controladores
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Ejecuta la aplicación
 app.Run();

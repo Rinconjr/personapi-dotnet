@@ -27,7 +27,7 @@ namespace personapi_dotnet.Data
         public virtual DbSet<Telefono> Telefonos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;");
+            => optionsBuilder.UseSqlServer("Server=db,1433;Database=arq_per_db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
