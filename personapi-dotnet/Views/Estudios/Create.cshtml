@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    <input asp-for="Fecha" class="form-control" />
+                    <input asp-for="Fecha" class="form-control" type="date" placeholder="YYYY-MM-DD" />
                     <label asp-for="Fecha"></label>
                     <span asp-validation-for="Fecha" class="text-danger"></span>
                 </div>
@@ -50,5 +50,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
