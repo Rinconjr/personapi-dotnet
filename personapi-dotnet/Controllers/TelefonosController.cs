@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Data;
 using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Controllers
 {
     public class TelefonosController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ArqPerDbContext _context;
 
-        public TelefonosController(ApplicationDbContext context)
+        public TelefonosController(ArqPerDbContext context)
         {
             _context = context;
         }

@@ -19,10 +19,10 @@ namespace personapi_dotnet.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Profesion>>> GetProfesionesAsync()
+        public async Task<ActionResult<IEnumerable<Profesion>>> GetAllProfesiones()
         {
-            var profesiones = await _profesionRepository.GetAllProfesionesAsync();
-            return Ok(profesiones);
+            var telefonos = await _profesionRepository.GetAllProfesionesAsync();
+            return Ok(telefonos);
         }
 
         [HttpGet("{id}")]
@@ -33,38 +33,29 @@ namespace personapi_dotnet.Controllers
             {
                 return NotFound();
             }
+
             return Ok(profesion);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Profesion>> CreateProfesionAsync([FromBody] Profesion profesiones)
+        public async Task<ActionResult> AddProfesion([FromBody] Profesion profesion)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _profesionRepository.AddProfesionAsync(profesiones);
-            return CreatedAtAction(nameof(GetProfesionById), new { id = profesiones.Id }, profesiones);
+            await _profesionRepository.AddProfesionAsync(profesion);
+            return CreatedAtAction(nameof(GetProfesionById), new { id = profesion.Id }, profesion);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProfesion(int id, [FromBody] Profesion profesiones)
+        public async Task<ActionResult> UpdateProfesion(int id, [FromBody] Profesion profesion)
         {
-            if (id != profesiones.Id || !ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _profesionRepository.UpdateProfesionAsync(profesiones);
+            await _profesionRepository.UpdateProfesionAsync(profesion);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProfesion(int id)
+        public async Task<ActionResult> DeleteTelefono(int id)
         {
-            var profesionToDelete = await _profesionRepository.GetProfesionByIdAsync(id);
-            if (profesionToDelete == null)
+            var profesion = await _profesionRepository.GetProfesionByIdAsync(id);
+            if (profesion == null)
             {
                 return NotFound();
             }

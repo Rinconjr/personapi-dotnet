@@ -9,11 +9,11 @@ namespace personapi_dotnet.Controllers
 {
     public class EstudiosController : Controller
     {
-        private readonly IEstudioRepository _estudioRepo;
+        private readonly IEstudiosRepository _estudioRepo;
         private readonly IPersonaRepository _personaRepo;
         private readonly IProfesionRepository _profesionRepo;
 
-        public EstudiosController(IEstudioRepository estudioRepo, IPersonaRepository personaRepo, IProfesionRepository profesionRepo)
+        public EstudiosController(IEstudiosRepository estudioRepo, IPersonaRepository personaRepo, IProfesionRepository profesionRepo)
         {
             _estudioRepo = estudioRepo;
             _personaRepo = personaRepo;
@@ -23,18 +23,16 @@ namespace personapi_dotnet.Controllers
         // GET: Estudios
         public async Task<IActionResult> Index()
         {
-            var estudios = await _estudioRepo.GetAllEstudiosAsync();
+            var estudios = await _estudioRepo.GetAllAsync();
             return View(estudios);
         }
 
         // GET: Estudios/Create
         public async Task<IActionResult> Create()
         {
-            // Obtener listas de personas y profesiones
             var personas = await _personaRepo.GetAllPersonasAsync();
             var profesiones = await _profesionRepo.GetAllProfesionesAsync();
 
-            // Verificar si las listas son nulas o vacías y manejar el error adecuadamente
             if (personas == null || !personas.Any())
             {
                 ModelState.AddModelError(string.Empty, "No se encontraron personas disponibles.");
@@ -45,13 +43,11 @@ namespace personapi_dotnet.Controllers
                 ModelState.AddModelError(string.Empty, "No se encontraron profesiones disponibles.");
             }
 
-            // Si hay errores en el modelo, devolver la vista con los errores
             if (!ModelState.IsValid)
             {
                 return View(); // Muestra la vista con los errores
             }
 
-            // Asignar las listas al ViewBag para pasarlas a la vista
             ViewData["CcPer"] = new SelectList(personas, "Cc", "Nombre");
             ViewData["IdProf"] = new SelectList(profesiones, "Id", "Nom");
 
@@ -63,12 +59,11 @@ namespace personapi_dotnet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
         {
-            // Verificar si ya existe un estudio para la combinación de IdProf y CcPer
-            var profPerExiste = await _estudioRepo.GetEstudioByIdAsync(estudio.IdProf) != null;
+            var profPerExiste = await _estudioRepo.GetEstudioByIdAsync(estudio.CcPer, estudio.IdProf) != null;
 
             if (profPerExiste)
             {
-                ModelState.AddModelError("IdProf", "La profesión para esta persona ya existe.");
+                ModelState.AddModelError("IdProf", "La combinación de profesión y persona ya existe.");
             }
 
             if (ModelState.IsValid)
@@ -77,7 +72,6 @@ namespace personapi_dotnet.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Recargar los SelectList en caso de error
             var personas = await _personaRepo.GetAllPersonasAsync();
             var profesiones = await _profesionRepo.GetAllProfesionesAsync();
             ViewData["CcPer"] = new SelectList(personas, "Cc", "Nombre", estudio.CcPer);
@@ -85,15 +79,16 @@ namespace personapi_dotnet.Controllers
 
             return View(estudio);
         }
+
         // GET: Estudios/Edit/5
-        public async Task<IActionResult> Edit(int? idProf)
+        public async Task<IActionResult> Edit(int? ccPer, int? idProf)
         {
-            if (!idProf.HasValue)
+            if (!ccPer.HasValue || !idProf.HasValue)
             {
                 return NotFound();
             }
 
-            var estudio = await _estudioRepo.GetEstudioByIdAsync(idProf.Value);
+            var estudio = await _estudioRepo.GetEstudioByIdAsync(ccPer.Value, idProf.Value);
             if (estudio == null)
             {
                 return NotFound();
@@ -107,9 +102,9 @@ namespace personapi_dotnet.Controllers
         // POST: Estudios/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int idProf, [Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
+        public async Task<IActionResult> Edit(int ccPer, int idProf, [Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
         {
-            if (idProf != estudio.IdProf)
+            if (ccPer != estudio.CcPer || idProf != estudio.IdProf)
             {
                 return NotFound();
             }
@@ -123,7 +118,7 @@ namespace personapi_dotnet.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await EstudioExists(estudio.IdProf))
+                    if (!await EstudioExists(estudio.CcPer, estudio.IdProf))
                     {
                         return NotFound();
                     }
@@ -137,14 +132,14 @@ namespace personapi_dotnet.Controllers
         }
 
         // GET: Estudios/Delete/5
-        public async Task<IActionResult> Delete(int? idProf)
+        public async Task<IActionResult> Delete(int? ccPer, int? idProf)
         {
-            if (!idProf.HasValue)
+            if (!ccPer.HasValue || !idProf.HasValue)
             {
                 return NotFound();
             }
 
-            var estudio = await _estudioRepo.GetEstudioByIdAsync(idProf.Value);
+            var estudio = await _estudioRepo.GetEstudioByIdAsync(ccPer.Value, idProf.Value);
             if (estudio == null)
             {
                 return NotFound();
@@ -156,15 +151,15 @@ namespace personapi_dotnet.Controllers
         // POST: Estudios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int idProf)
+        public async Task<IActionResult> DeleteConfirmed(int ccPer, int idProf)
         {
-            await _estudioRepo.DeleteEstudioAsync(idProf);
+            await _estudioRepo.DeleteEstudioAsync(ccPer, idProf);
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> EstudioExists(int idProf)
+        private async Task<bool> EstudioExists(int ccPer, int idProf)
         {
-            return await _estudioRepo.GetEstudioByIdAsync(idProf) != null;
+            return await _estudioRepo.GetEstudioByIdAsync(ccPer, idProf) != null;
         }
     }
 }

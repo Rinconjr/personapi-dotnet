@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Data;
 using personapi_dotnet.Models.Entities;
 
 public class TelefonoRepository : ITelefonoRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ArqPerDbContext _context;
 
-    public TelefonoRepository(ApplicationDbContext context)
+    public TelefonoRepository(ArqPerDbContext context)
     {
         _context = context;
     }

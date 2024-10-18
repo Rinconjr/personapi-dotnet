@@ -13,9 +13,9 @@ namespace personapi_dotnet.Controllers
     {
         private readonly IPersonaRepository _personaRepository;
         private readonly ITelefonoRepository _telefonoRepository;
-        private readonly IEstudioRepository _estudioRepository;
+        private readonly IEstudiosRepository _estudioRepository;
 
-        public PersonasController(IPersonaRepository personaRepository, ITelefonoRepository telefonoRepository, IEstudioRepository estudioRepository)
+        public PersonasController(IPersonaRepository personaRepository, ITelefonoRepository telefonoRepository, IEstudiosRepository estudioRepository)
         {
             _personaRepository = personaRepository;
             _telefonoRepository = telefonoRepository;
@@ -159,10 +159,10 @@ namespace personapi_dotnet.Controllers
             }
 
             // Eliminar todos los estudios asociados a la persona
-            var estudios = await _estudioRepository.GetAllEstudiosAsync();
+            var estudios = await _estudioRepository.GetAllAsync();
             foreach (var estudio in estudios.Where(e => e.CcPer == id))
             {
-                await _estudioRepository.DeleteEstudioAsync(estudio.IdProf);
+                await _estudioRepository.DeleteEstudioAsync(estudio.IdProf,estudio.CcPer);
             }
 
             // Eliminar la persona

@@ -1,52 +1,53 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using personapi_dotnet.Models.Entities;
-using personapi_dotnet.Repository;
-using personapi_dotnet.Data;
-
-
 namespace personapi_dotnet.Repository
 {
-    public class EstudioRepository : IEstudioRepository
+    public class EstudiosRepository : IEstudiosRepository
     {
-        private readonly ApplicationDbContext _context; // Asume que Estudio está en el mismo DbContext
+        private readonly ArqPerDbContext _context;
 
-        public EstudioRepository(ApplicationDbContext context)
+        public EstudiosRepository(ArqPerDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<Estudio>> GetAllEstudiosAsync()
+        public async Task<IEnumerable<Estudio>> GetAllAsync()
         {
-            return await _context.Estudios.ToListAsync();
+            return await _context.Estudios
+                .Include(e => e.CcPerNavigation)
+                .Include(e => e.IdProfNavigation)
+                .ToListAsync();
         }
 
-        public async Task<Estudio> GetEstudioByIdAsync(int idProf)
+        public async Task<Estudio?> GetEstudioByIdAsync(int ccPer, int idProf)
         {
-            return await _context.Estudios.FirstOrDefaultAsync(e => e.IdProf == idProf);
+            return await _context.Estudios
+                .Include(e => e.CcPerNavigation)
+                .Include(e => e.IdProfNavigation)
+                .FirstOrDefaultAsync(e => e.CcPer == ccPer && e.IdProf == idProf);
         }
 
         public async Task AddEstudioAsync(Estudio estudio)
         {
-            _context.Estudios.Add(estudio);
+            await _context.Estudios.AddAsync(estudio);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateEstudioAsync(Estudio estudio)
         {
-            _context.Entry(estudio).State = EntityState.Modified;
+            _context.Estudios.Update(estudio);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteEstudioAsync(int idProf)
+        public async Task DeleteEstudioAsync(int ccPer, int idProf)
         {
-            var estudio = await _context.Estudios.FindAsync(idProf);
+            var estudio = await _context.Estudios
+                .FirstOrDefaultAsync(e => e.CcPer == ccPer && e.IdProf == idProf);
             if (estudio != null)
             {
                 _context.Estudios.Remove(estudio);
                 await _context.SaveChangesAsync();
             }
         }
-
-       
     }
 }

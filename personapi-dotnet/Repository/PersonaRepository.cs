@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Data;
 using personapi_dotnet.Models.Entities;
 
 namespace personapi_dotnet.Repository
 {
     public class PersonaRepository : IPersonaRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ArqPerDbContext _context;
 
-        public PersonaRepository(ApplicationDbContext context)
+        public PersonaRepository(ArqPerDbContext context)
         {
             _context = context;
         }

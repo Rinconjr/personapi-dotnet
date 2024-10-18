@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using personapi_dotnet.Data;
+
+using personapi_dotnet.Models.Entities;
 
 #nullable disable
 
 namespace personapi_dotnet.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(ArqPerDbContext))]
     [Migration("20241013200710_InitialCreate")]
     partial class InitialCreate
     {

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
-using personapi_dotnet.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,9 +9,9 @@ namespace personapi_dotnet.Controllers
 {
     public class ProfesionController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ArqPerDbContext _context;
 
-        public ProfesionController(ApplicationDbContext context)
+        public ProfesionController(ArqPerDbContext context)
         {
             _context = context;
         }
@@ -20,7 +19,7 @@ namespace personapi_dotnet.Controllers
         // GET: Profesion
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Profesiones.ToListAsync());
+            return View(await _context.Profesions.ToListAsync());
         }
 
         // GET: Profesion/Details/5
@@ -31,7 +30,7 @@ namespace personapi_dotnet.Controllers
                 return NotFound();
             }
 
-            var profesion = await _context.Profesiones
+            var profesion = await _context.Profesions
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (profesion == null)
             {
@@ -50,9 +49,9 @@ namespace personapi_dotnet.Controllers
         // POST: Profesion/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nom,Des")] Profesion profesion)
+        public async Task<IActionResult> Create([Bind("Id,Nom,Des")]Profesion profesion)
         {
-            bool profesionExiste = await _context.Profesiones
+            bool profesionExiste = await _context.Profesions
                 .AnyAsync(t => t.Id == profesion.Id);
 
             if (profesionExiste)
@@ -80,7 +79,7 @@ namespace personapi_dotnet.Controllers
                 return NotFound();
             }
 
-            var profesion = await _context.Profesiones.FindAsync(id);
+            var profesion = await _context.Profesions.FindAsync(id);
             if (profesion == null)
             {
                 return NotFound();
@@ -129,7 +128,7 @@ namespace personapi_dotnet.Controllers
                 return NotFound();
             }
 
-            var profesion = await _context.Profesiones
+            var profesion = await _context.Profesions
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (profesion == null)
             {
@@ -144,7 +143,7 @@ namespace personapi_dotnet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var profesion = await _context.Profesiones.FindAsync(id);
+            var profesion = await _context.Profesions.FindAsync(id);
             if (profesion != null)
             {
                 var estudiosAsociados = await _context.Estudios
@@ -156,7 +155,7 @@ namespace personapi_dotnet.Controllers
                     _context.Estudios.RemoveRange(estudiosAsociados);
                 }
 
-                _context.Profesiones.Remove(profesion);
+                _context.Profesions.Remove(profesion);
                 await _context.SaveChangesAsync();
             }
 
@@ -165,7 +164,7 @@ namespace personapi_dotnet.Controllers
 
         private bool ProfesionExists(int id)
         {
-            return _context.Profesiones.Any(e => e.Id == id);
+            return _context.Profesions.Any(e => e.Id == id);
         }
     }
 }

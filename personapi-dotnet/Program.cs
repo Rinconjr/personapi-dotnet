@@ -1,26 +1,27 @@
 using Microsoft.EntityFrameworkCore;
-using personapi_dotnet.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using personapi_dotnet.Repository;
+using personapi_dotnet.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar servicios con vistas y JSON
+// Configurar servicios con vistas y JSON, ignorando ciclos de referencia
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(opts =>
     {
-        opts.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        opts.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        opts.JsonSerializerOptions.WriteIndented = false;  // Opcional: elimina la indentación para respuestas JSON más compactas
     });
 
 // Registrar repositorios e interfaces
 builder.Services.AddTransient<IPersonaRepository, PersonaRepository>();
-builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
+builder.Services.AddScoped<IEstudiosRepository, EstudiosRepository>();
 builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
 builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
 
 // Configurar DbContext con la cadena de conexión
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ArqPerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configurar Swagger

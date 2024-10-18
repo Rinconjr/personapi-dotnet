@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace personapi_dotnet.Models.Entities;
 
@@ -11,5 +12,6 @@ public partial class Telefono
 
     public int? Duenio { get; set; }
 
+    [JsonIgnore]
     public virtual Persona? DuenioNavigation { get; set; } = null!;
 }

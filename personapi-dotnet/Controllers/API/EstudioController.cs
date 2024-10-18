@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using personapi_dotnet.Models;
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace personapi_dotnet.Controllers
 {
@@ -9,60 +9,70 @@ namespace personapi_dotnet.Controllers
     [ApiController]
     public class EstudioAPIController : ControllerBase
     {
-        private readonly IEstudioRepository _estudioRepository;
+        private readonly IEstudiosRepository _estudiosRepository;
+        private readonly IPersonaRepository _personaRepository;
+        private readonly IProfesionRepository _profesionRepository;
 
-        public EstudioAPIController(IEstudioRepository estudioRepository)
+        public EstudioAPIController(IEstudiosRepository estudiosRepository, IPersonaRepository personaRepository, IProfesionRepository profesionRepository)
         {
-            _estudioRepository = estudioRepository;
+            _estudiosRepository = estudiosRepository;
+            _personaRepository = personaRepository;
+            _profesionRepository = profesionRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Estudio>>> GetEstudiosAsync()
+        public async Task<ActionResult<IEnumerable<Estudio>>> GetAllEstudios()
         {
-            var estudios = await _estudioRepository.GetAllEstudiosAsync();
+            var estudios = await _estudiosRepository.GetAllAsync();
             return Ok(estudios);
         }
 
-        [HttpGet("{idProf}")]
-        public async Task<ActionResult<Estudio>> GetEstudioById(int idProf)
+        [HttpGet("{ccPer}/{idProf}")]
+        public async Task<ActionResult<Estudio>> GetEstudioById(int ccPer, int idProf)
         {
-            var estudio = await _estudioRepository.GetEstudioByIdAsync(idProf);
+            var estudio = await _estudiosRepository.GetEstudioByIdAsync(ccPer, idProf);
             if (estudio == null)
             {
                 return NotFound();
             }
+
             return Ok(estudio);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Estudio>> CreateEstudioAsync(Estudio estudio)
+        public async Task<ActionResult> AddEstudio(int profesion, int cedula, DateOnly date, string universidad)
         {
-            await _estudioRepository.AddEstudioAsync(estudio);
-            return CreatedAtAction(nameof(GetEstudioById), new { idProf = estudio.IdProf }, estudio);
+            var newEstudio = new Estudio
+            {
+                IdProf = profesion,
+                CcPer = cedula,
+                Fecha = date,
+                Univer = universidad,
+                CcPerNavigation = await _personaRepository.GetPersonaByIdAsync(cedula),
+                IdProfNavigation = await _profesionRepository.GetProfesionByIdAsync(profesion)
+            };
+
+            await _estudiosRepository.AddEstudioAsync(newEstudio);
+            return CreatedAtAction(nameof(GetEstudioById), new { ccPer = newEstudio.CcPer, idProf = newEstudio.IdProf }, newEstudio);
         }
 
-        [HttpPut("{idProf}")]
-        public async Task<IActionResult> UpdateEstudio(int idProf, Estudio estudio)
+        [HttpPut("{ccPer}/{idProf}")]
+        public async Task<ActionResult> UpdateEstudio(int ccPer, int idProf, [FromBody] Estudio estudio)
         {
-            if (idProf != estudio.IdProf)
-            {
-                return BadRequest();
-            }
-
-            await _estudioRepository.UpdateEstudioAsync(estudio);
+            await _estudiosRepository.UpdateEstudioAsync(estudio);
             return NoContent();
         }
 
-        [HttpDelete("{idProf}")]
-        public async Task<IActionResult> DeleteEstudio(int idProf)
+        [HttpDelete("{ccPer}/{idProf}")]
+        public async Task<ActionResult> DeleteEstudio(int ccPer, int idProf)
         {
-            var estudioToDelete = await _estudioRepository.GetEstudioByIdAsync(idProf);
-            if (estudioToDelete == null)
+            var estudio = await _estudiosRepository.GetEstudioByIdAsync(ccPer, idProf);
+            if (estudio == null)
             {
                 return NotFound();
             }
 
-            await _estudioRepository.DeleteEstudioAsync(idProf);
+            await _estudiosRepository.DeleteEstudioAsync(ccPer, idProf);
             return NoContent();
         }
     }
