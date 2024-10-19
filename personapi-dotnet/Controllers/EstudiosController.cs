@@ -105,49 +105,73 @@ namespace personapi_dotnet.Controllers
             return View(estudio);
         }
 
+
         // POST: Estudios/Edit/#
+        // Asegúrate de que el método reciba los parámetros correctos
+        // POST: Estudios/Edit/#
+               // POST: Estudios/Edit/#
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int idProf, int ccPer, [Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
         {
+            // Verifica que los parámetros coincidan
             if (idProf != estudio.IdProf || ccPer != estudio.CcPer)
             {
                 return NotFound();
             }
 
+            // Obtiene la profesión y la persona
             var profesion = await _profesionRepository.GetProfesionByIdAsync(estudio.IdProf);
-            estudio.IdProfNavigation = profesion;
-
             var persona = await _personaRepository.GetPersonaByIdAsync(estudio.CcPer);
+
+            if (profesion == null || persona == null)
+            {
+                return NotFound(); // Retorna NotFound si no se encuentra la profesión o la persona
+            }
+
+            // Establece las propiedades de navegación del estudio
+            estudio.IdProfNavigation = profesion;
             estudio.CcPerNavigation = persona;
 
+            // Limpia el ModelState y valida el modelo
             ModelState.Clear();
             TryValidateModel(estudio);
 
+            // Verifica si el modelo es válido
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _estudioRepository.UpdateEstudioAsync(estudio);
+                    return RedirectToAction(nameof(Index)); // Redirige a la lista de estudios
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!await EstudioExists(estudio.IdProf, estudio.CcPer))
                     {
-                        return NotFound();
+                        return NotFound(); // Retorna NotFound si el estudio no existe
                     }
                     else
                     {
-                        throw;
+                        throw; // Lanza la excepción para manejarla más arriba
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    // Log de errores adicionales
+                    // logger.LogError(ex, "Error al actualizar el estudio");
+                    ModelState.AddModelError(string.Empty, "Error inesperado al actualizar el estudio.");
+                }
             }
 
+            // Si el modelo no es válido, vuelve a llenar los select lists
             ViewData["CcPer"] = new SelectList(await _personaRepository.GetAllPersonasAsync(), "Cc", "Cc", estudio.CcPer);
             ViewData["IdProf"] = new SelectList(await _profesionRepository.GetAllProfesionesAsync(), "Id", "Id", estudio.IdProf);
-            return View(estudio);
+            return View(estudio); // Regresa la vista con el estudio para corregir errores
         }
+
+
+
 
         // GET: Estudios/Delete/#
         public async Task<IActionResult> Delete(int? idProf, int? ccPer)

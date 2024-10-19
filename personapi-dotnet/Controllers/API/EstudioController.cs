@@ -82,10 +82,34 @@ namespace personapi_dotnet.Controllers
         }
 
 
+
         [HttpPut("{ccPer}/{idProf}")]
-        public async Task<ActionResult> UpdateEstudio(int ccPer, int idProf, [FromBody] Estudio estudio)
+        public async Task<IActionResult> Update(int ccPer, int idProf, string universidad, DateOnly date)
         {
+            // Obtener el estudio a actualizar
+            var estudio = await _estudiosRepository.GetEstudioByIdAsync(ccPer, idProf);
+
+            // Verificar si el estudio existe
+            if (estudio == null)
+            {
+                return NotFound();
+            }
+
+            // Actualizar los campos de universidad si no están vacíos
+            if (!string.IsNullOrEmpty(universidad))
+            {
+                estudio.Univer = universidad;
+            }
+
+            // Actualizar el campo de fecha si no está vacío
+            if (date != default)
+            {
+                estudio.Fecha = date;
+            }
+
+            // Actualizar el estudio en el repositorio
             await _estudiosRepository.UpdateEstudioAsync(estudio);
+
             return NoContent();
         }
 

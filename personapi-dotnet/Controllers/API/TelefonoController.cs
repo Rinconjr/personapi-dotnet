@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using personapi_dotnet.Models;
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Repository;
 using System.Collections.Generic;
@@ -18,17 +17,19 @@ namespace personapi_dotnet.Controllers
             _telefonoRepository = telefonoRepository;
         }
 
+        // GET: api/telefono
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Telefono>>> GetTelefonosAsync()
+        public async Task<ActionResult<IEnumerable<Telefono>>> GetAllTelefonos()
         {
             var telefonos = await _telefonoRepository.GetAllTelefonosAsync();
             return Ok(telefonos);
         }
 
-        [HttpGet("{duenio}")]
-        public async Task<ActionResult<Telefono>> GetTelefonoByDuenio(string duenio)
+        // GET: api/telefono/{duenio}
+        [HttpGet("{num}")]
+        public async Task<ActionResult<Telefono>> GetTelefonoByDuenio(string num)
         {
-            var telefono = await _telefonoRepository.GetTelefonoByIdAsync(duenio);
+            var telefono = await _telefonoRepository.GetTelefonoByIdAsync(num);
             if (telefono == null)
             {
                 return NotFound();
@@ -36,35 +37,49 @@ namespace personapi_dotnet.Controllers
             return Ok(telefono);
         }
 
+        // POST: api/telefono
         [HttpPost]
-        public async Task<ActionResult<Telefono>> CreateTelefonoAsync(Telefono telefono)
+        public async Task<ActionResult<Telefono>> CreateTelefonoAsync(string num, string oper, int duenio)
         {
+            var telefono = new Telefono
+            {
+                Num = num,
+                Oper = oper,
+                Duenio = duenio
+            };
+
             await _telefonoRepository.AddTelefonoAsync(telefono);
-            return CreatedAtAction(nameof(GetTelefonoByDuenio), new { duenio = telefono.Duenio }, telefono);
+            return CreatedAtAction(nameof(GetTelefonoByDuenio), new { num = telefono.Num }, telefono);
         }
 
+        // PUT: api/telefono/{duenio}
         [HttpPut("{duenio}")]
-        public async Task<IActionResult> UpdateTelefono(int duenio, Telefono telefono)
+        public async Task<IActionResult> UpdateTelefono(string numero, string operador, int dueno)
         {
-            if (duenio != telefono.Duenio)
+            var telefono = await _telefonoRepository.GetTelefonoByIdAsync(numero);
+            if (telefono == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            telefono.Num = numero;
+            telefono.Oper = operador;
 
             await _telefonoRepository.UpdateTelefonoAsync(telefono);
             return NoContent();
         }
 
-        [HttpDelete("{duenio}")]
-        public async Task<IActionResult> DeleteTelefono(string duenio)
+        // DELETE: api/telefono/{numero}
+        [HttpDelete("{numero}")]
+        public async Task<IActionResult> DeleteTelefono(string numero)
         {
-            var telefonoToDelete = await _telefonoRepository.GetTelefonoByIdAsync(duenio);
+            var telefonoToDelete = await _telefonoRepository.GetTelefonoByIdAsync(numero);
             if (telefonoToDelete == null)
             {
                 return NotFound();
             }
 
-            await _telefonoRepository.DeleteTelefonoAsync(duenio);
+            await _telefonoRepository.DeleteTelefonoAsync(numero);
             return NoContent();
         }
     }

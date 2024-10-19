@@ -67,10 +67,6 @@ namespace personapi_dotnet.Repository
                 throw new Exception("Error al agregar el estudio: " + ex.Message, ex);
             }
         }
-
-
-
-
         public async Task UpdateEstudioAsync(Estudio estudio)
         {
             _context.Estudios.Update(estudio);
