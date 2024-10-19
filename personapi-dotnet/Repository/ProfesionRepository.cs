@@ -21,10 +21,12 @@ namespace personapi_dotnet.Repository
 
         public async Task<Profesion> GetProfesionesByIdAsync(int id)
         {
-            return await _context.Profesions
-                .Include(p => p.Estudios)  // Incluimos los estudios asociados
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
+
+            return await _context.Profesions.FindAsync(id);
+            // return await _context.Profesions
+            //   .Include(p => p.Estudios)  // Incluimos los estudios asociados
+            // .AsNoTracking()
+            //.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AddProfesionAsync(Profesion profesion)
