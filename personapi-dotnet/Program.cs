@@ -59,6 +59,13 @@ app.UseRouting();      // Habilita el enrutamiento
 
 app.UseAuthorization();  // Habilita la autorización
 
+// Redirigir automáticamente la raíz a /home
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/home");
+    return Task.CompletedTask;
+});
+
 // Mapea las rutas a los controladores
 app.MapControllers();
 

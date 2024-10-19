@@ -19,3 +19,5 @@ Para ejecutar la aplicación en contenedores Docker, utiliza el siguiente comand
 ```bash
 docker-compose up --build
 ```
+
+Luego, para acceder a la pagina principal de la aplicacion, se debe acceder al localhost con el puerto 8080 o simplemente dando click [aqui](localhost:8080/home)
